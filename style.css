@@ -1,0 +1,189 @@
+body {
+    margin: 0;
+    background-color: #f4f4f4;
+    font-family: 'Inter', sans-serif;
+}
+
+.container {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Envelope Structure */
+.envelope {
+    position: relative;
+    width: 220px;
+    height: 140px;
+    cursor: pointer;
+    perspective: 1000px;
+    transition: transform 1s;
+}
+
+.flap {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    background-color: #ccc;
+    transform-origin: top;
+    transition: transform 1s;
+    z-index: 3;
+}
+
+.base {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    height: 50%;
+    background-color: #ddd;
+    z-index: 1;
+    border: 1px solid #bbb;
+    border-top: none;
+}
+
+/* Letter and Label */
+.paper-wrapper {
+    position: absolute;
+    top: 8%;
+    left: 5%;
+    width: 90%;
+    height: 120%;
+    z-index: 2;
+}
+
+.left-label {
+    position: absolute;
+    top: 10px;
+    left: -25px;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    font-family: 'Libre Baskerville', serif;
+    font-size: 14px;
+    color: #888;
+    opacity: 0.7;
+    letter-spacing: 4px;
+    transform: rotate(180deg);
+    user-select: none;
+}
+
+.paper {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, #ffffff, #fdfdfd);
+    border-radius: 6px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    color: #444;
+    font-family: 'Georgia', serif;
+    font-style: italic;
+    font-size: 16px;
+    padding: 10px;
+    text-align: center;
+    background-image: repeating-linear-gradient(to bottom, #fff 0px, #fff 22px, #eee 23px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 1.5s ease;
+}
+
+/* Animation */
+.envelope.opened .flap {
+    transform: rotateX(-160deg);
+}
+
+.envelope.opened .paper {
+    transform: translateY(-160px);
+}
+
+/* Transition Screen */
+.fade-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1.5s ease;
+}
+
+.fade-text {
+    font-size: 20px;
+    color: #333;
+    text-align: center;
+    line-height: 1.5;
+}
+
+.fade-text button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-weight: bold;
+    background-color: #333;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+@media (max-width: 600px) {
+    .container {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    .envelope {
+        width: 180px;
+        height: 110px;
+        margin: 0 auto;
+        position: relative;
+    }
+
+    .paper-wrapper {
+        top: 8%;
+        left: 5%;
+        width: 90%;
+        height: 120%;
+    }
+
+    .paper {
+        font-size: 14px;
+        padding: 8px;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .left-label {
+        font-size: 12px;
+        left: -20px;
+        letter-spacing: 3px;
+        top: 10px;
+    }
+
+    .fade-text {
+        font-size: 16px;
+        padding: 0 15px;
+    }
+
+    .fade-text button {
+        width: 100%;
+        max-width: 220px;
+    }
+}
+
+

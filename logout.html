@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Logout | Unspoken</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter&family=Libre+Baskerville&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      background: #fff;
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .outer-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      max-width: 1000px;
+      position: relative;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .unspoken-spine {
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      font-family: 'Libre Baskerville', serif;
+      font-size: 18px;
+      letter-spacing: 6px;
+      color: #999;
+      opacity: 0.6;
+      user-select: none;
+      transform: rotate(180deg);
+      padding: 20px 8px;
+      border-right: 1px solid #eee;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 300px;
+      margin-top: 120px;
+    }
+
+    .logout-container {
+      flex: 1;
+      display: flex;
+      border-radius: 16px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+      background: #fff;
+      margin-left: 20px;
+      max-width: 400px;
+    }
+
+    .logout-box {
+      padding: 60px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .logout-box h1 {
+      font-family: 'Libre Baskerville', serif;
+      font-size: 26px;
+      margin-bottom: 16px;
+      color: #333;
+    }
+
+    .logout-box p {
+      font-size: 15px;
+      color: #666;
+      margin-bottom: 30px;
+    }
+
+    button {
+      padding: 12px 28px;
+      background: #444;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 15px;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background: #222;
+    }
+
+    .loader-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #fefefe;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .loader-content {
+      font-family: 'Libre Baskerville', serif;
+      font-size: 36px;
+      letter-spacing: 6px;
+      color: #555;
+      animation: fadeinout 1.5s ease-in-out infinite;
+    }
+
+    @keyframes fadeinout {
+      0%, 100% {
+        opacity: 0.2;
+      }
+
+      50% {
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 600px) {
+  body {
+    flex-direction: column;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .outer-wrapper {
+    flex-direction: column;
+    align-items: center;
+    max-width: 90%;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .unspoken-spine {
+    writing-mode: horizontal-tb;
+    transform: none;
+    border-right: none;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+    height: auto;
+    width: 100%;
+    padding: 10px 0;
+    margin-bottom: 16px;
+    justify-content: center;
+    text-align: center;
+    display: flex;
+    order: -1; /* makes sure it's above the box */
+  }
+
+  .logout-container {
+    margin-left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  button {
+    width: 100%;
+  }
+}
+
+
+  </style>
+</head>
+
+<body>
+
+  <div class="outer-wrapper">
+    <div class="unspoken-spine">UNSPOKEN</div>
+
+    <div class="logout-container" id="logoutBox">
+      <div class="logout-box">
+        <h1>Leaving so soon?</h1>
+        <p>Click below to logout from your Unspoken account.</p>
+        <button id="logoutBtn">Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="loader-overlay" id="loader">
+    <div class="loader-content">UNSPOKEN</div>
+  </div>
+
+  <script type="module">
+    import { auth } from './firebase.js';
+    import { signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+
+    const logoutBox = document.getElementById('logoutBox');
+    const loader = document.getElementById('loader');
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      logoutBox.style.display = "none";
+      loader.style.display = "flex";
+
+      setTimeout(async () => {
+        try {
+          await signOut(auth);
+          window.location.href = "login.html";
+        } catch (error) {
+          alert("Logout failed. Please try again.");
+          console.error(error);
+          loader.style.display = "none";
+          logoutBox.style.display = "flex";
+        }
+      }, 1400);
+    });
+  </script>
+
+</body>
+
+</html>

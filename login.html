@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login | Letters Unsent</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter&family=Libre+Baskerville&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="login.css" />
+  <style>
+    body {
+      margin: 0;
+      background-color: #f4f4f4;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .login-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      height: 100vh;
+      padding: 20px;
+      box-sizing: border-box;
+      position: relative;
+    }
+
+    .unspoken-label {
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      font-family: 'Libre Baskerville', serif;
+      font-size: 18px;
+      letter-spacing: 6px;
+      color: #999;
+      opacity: 0.6;
+      transform: rotate(180deg);
+      user-select: none;
+      transition: all 0.3s ease;
+      position: relative;
+      top: 80px;
+    }
+
+    .unspoken-label.shifted {
+      top: 110px;
+    }
+
+    .form-box {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      width: 350px;
+      position: relative;
+    }
+
+    .form-toggle {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .form-toggle button {
+      flex: 1;
+      padding: 10px;
+      font-weight: bold;
+      background-color: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      font-size: 16px;
+      color: #555;
+      transition: border-color 0.3s;
+    }
+
+    .form-toggle button.active {
+      border-bottom: 2px solid #333;
+      color: #000;
+    }
+
+    .form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form h2 {
+      margin-bottom: 20px;
+      font-family: 'Libre Baskerville', serif;
+      font-size: 22px;
+      color: #333;
+      text-align: center;
+    }
+
+    .form input {
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 15px;
+    }
+
+    .form button {
+      padding: 12px;
+      background-color: #333;
+      color: white;
+      border: none;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .form button:hover {
+      background-color: #000;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* Loader Overlay */
+    .loader-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #fefefe;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      transition: opacity 0.4s ease;
+    }
+
+    .loader-content {
+      font-family: 'Libre Baskerville', serif;
+      font-size: 36px;
+      letter-spacing: 6px;
+      color: #555;
+      animation: fadeinout 1.5s ease-in-out infinite;
+    }
+
+    @keyframes fadeinout {
+      0%, 100% {
+        opacity: 0.3;
+      }
+      50% {
+        opacity: 1;
+      }
+    }
+
+    #loader.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    @media (max-width: 600px) {
+      .login-wrapper {
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+      }
+
+      .form-box {
+        width: 100%;
+        max-width: 320px;
+        padding: 20px;
+      }
+
+      .unspoken-label {
+        writing-mode: horizontal-tb;
+        transform: none;
+        text-align: center;
+        font-size: 14px;
+        border-bottom: 1px solid #eee;
+        margin-bottom: 20px;
+        position: static;
+      }
+
+      .unspoken-label.shifted {
+        top: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Loader -->
+  <div id="loader" class="loader-overlay hidden">
+    <div class="loader-content">Unspoken</div>
+  </div>
+
+  <div class="login-wrapper">
+    <div class="unspoken-label" id="unspokenLabel">UNSPOKEN</div>
+
+    <div class="form-box">
+      <div class="form-toggle">
+        <button id="loginBtn" class="active" onclick="showLogin()">Login</button>
+        <button id="signupBtn" onclick="showSignup()">Signup</button>
+      </div>
+
+      <!-- Login -->
+      <form id="loginForm" class="form">
+        <h2>Welcome Back</h2>
+        <input type="email" id="loginEmail" placeholder="Email" required />
+        <input type="password" id="loginPassword" placeholder="Password" required />
+        <button type="button" onclick="handleLogin()">Login</button>
+      </form>
+
+      <!-- Signup -->
+      <form id="signupForm" class="form hidden">
+        <h2>Create Account</h2>
+        <input type="text" id="signupName" placeholder="Name" required />
+        <input type="email" id="signupEmail" placeholder="Email" required />
+        <input type="password" id="signupPassword" placeholder="Password" required />
+        <button type="button" onclick="handleSignup()">Signup</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Firebase Setup -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    const config = {
+      apiKey: "AIzaSyCGQ8D6kkDQStawobxI2zp9xUFZLXx4IN4",
+      authDomain: "unspoken-786.firebaseapp.com",
+      projectId: "unspoken-786",
+      storageBucket: "unspoken-786.appspot.com",
+      messagingSenderId: "325568881433",
+      appId: "1:325568881433:web:2ad01872f5e07c0d0a9b88"
+    };
+
+    const app = initializeApp(config);
+    const auth = getAuth(app);
+
+    const loginForm = document.getElementById('loginForm');
+    const signupForm = document.getElementById('signupForm');
+    const loginBtn = document.getElementById('loginBtn');
+    const signupBtn = document.getElementById('signupBtn');
+    const label = document.getElementById('unspokenLabel');
+    const loader = document.getElementById('loader');
+
+    window.showLogin = () => {
+      loginForm.classList.remove('hidden');
+      signupForm.classList.add('hidden');
+      loginBtn.classList.add('active');
+      signupBtn.classList.remove('active');
+      label.classList.remove('shifted');
+    };
+
+    window.showSignup = () => {
+      signupForm.classList.remove('hidden');
+      loginForm.classList.add('hidden');
+      signupBtn.classList.add('active');
+      loginBtn.classList.remove('active');
+      label.classList.add('shifted');
+    };
+
+    window.handleLogin = () => {
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+      loader.classList.remove('hidden');
+
+      signInWithEmailAndPassword(auth, email, password)
+        .then(() => {
+          window.location.href = "home.html";
+        })
+        .catch((error) => {
+          alert("Login Error: " + error.message);
+          loader.classList.add('hidden');
+        });
+    };
+
+    window.handleSignup = () => {
+      const name = document.getElementById('signupName').value;
+      const email = document.getElementById('signupEmail').value;
+      const password = document.getElementById('signupPassword').value;
+      loader.classList.remove('hidden');
+
+      createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => updateProfile(userCredential.user, { displayName: name }))
+        .then(() => {
+          window.location.href = "home.html";
+        })
+        .catch((error) => {
+          alert("Signup Error: " + error.message);
+          loader.classList.add('hidden');
+        });
+    };
+  </script>
+</body>
+</html>

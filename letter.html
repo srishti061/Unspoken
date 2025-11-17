@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Letter Detail</title>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Libre Baskerville', serif;
+            padding: 40px;
+            background: #fafafa;
+        }
+
+        .letter {
+            max-width: 600px;
+            margin: auto;
+            padding: 30px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .date {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 10px;
+        }
+
+        .edit-btn {
+            margin-top: 20px;
+            background: #444;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .edit-btn:hover {
+            background: #222;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 20px;
+                overflow-x: hidden;
+            }
+
+            .letter {
+                padding: 20px;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .edit-btn {
+                width: 100%;
+                margin-top: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="letter">
+        <div class="date" id="dateLine"></div>
+        <h2 id="toLine"></h2>
+        <p id="content"></p>
+        <a id="editButton" class="edit-btn" style="display:none;">Edit Letter</a>
+    </div>
+
+    <script type="module">
+        import { db, auth } from './firebase.js';
+        import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+        import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const letterId = urlParams.get('id');
+        const docRef = doc(db, 'letters', letterId);
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!letterId) {
+                document.body.innerHTML = "<p>No letter ID provided.</p>";
+                return;
+            }
+
+            const snapshot = await getDoc(docRef);
+            if (!snapshot.exists()) {
+                document.body.innerHTML = "<p>Letter not found.</p>";
+                return;
+            }
+
+            const data = snapshot.data();
+            document.getElementById('toLine').textContent = `To: ${data.to || "Someone"}`;
+            document.getElementById('content').textContent = data.content || "(No content)";
+            const createdAt = data.createdAt?.toDate?.();  // Firestore Timestamp to JS Date
+            if (createdAt) {
+                const formatted = createdAt.toLocaleString();
+                document.getElementById('dateLine').textContent = `Submitted on: ${formatted}`;
+            }
+
+            // Show edit button only for the letter owner
+            if (user && user.uid === data.userId) {
+                const editBtn = document.getElementById('editButton');
+                editBtn.href = `edit.html?id=${letterId}`;
+                editBtn.style.display = 'inline-block';
+            }
+        });
+    </script>
+</body>
+
+</html>

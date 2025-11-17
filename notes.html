@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Your Saved Notes | Unspoken</title>
+  <style>
+    body {
+      margin: 20px;
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      color: #333;
+    }
+
+    h2 {
+      margin-bottom: 16px;
+      font-weight: 600;
+      font-size: 24px;
+      color: #555;
+    }
+
+    .note {
+      margin-bottom: 24px;
+      white-space: pre-wrap;
+    }
+
+    .date {
+      font-size: 14px;
+      color: #888;
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>Your Saved Notes</h2>
+  <div id="notesContainer">Loading notes...</div>
+
+  <script type="module">
+    import { auth, db } from './firebase.js';
+    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+    import { collection, query, where, getDocs, orderBy } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+    const notesContainer = document.getElementById('notesContainer');
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        notesContainer.textContent = "Please log in to view your notes.";
+        return;
+      }
+
+      try {
+        // Assuming your notes are stored in 'notes' collection, each document is one note
+        // and each note has fields: userId, content, createdAt (timestamp)
+        // If you saved notes as a single doc, let me know to adjust code.
+
+        const notesQuery = query(
+          collection(db, 'notes'),
+          where('userId', '==', user.uid),
+          orderBy('createdAt', 'desc')
+        );
+
+        const querySnapshot = await getDocs(notesQuery);
+        if (querySnapshot.empty) {
+          notesContainer.textContent = "No notes found.";
+          return;
+        }
+
+        notesContainer.innerHTML = '';
+        querySnapshot.forEach(doc => {
+          const data = doc.data();
+          const content = data.content || '';
+          const timestamp = data.createdAt ? data.createdAt.toDate() : null;
+
+          const noteEl = document.createElement('div');
+          noteEl.classList.add('note');
+
+          if (timestamp) {
+            const dateEl = document.createElement('div');
+            dateEl.classList.add('date');
+            dateEl.textContent = timestamp.toLocaleString();
+            noteEl.appendChild(dateEl);
+          }
+
+          const contentEl = document.createElement('div');
+          contentEl.textContent = content;
+          noteEl.appendChild(contentEl);
+
+          notesContainer.appendChild(noteEl);
+        });
+      } catch (error) {
+        console.error('Error loading notes:', error);
+        notesContainer.textContent = "Failed to load notes.";
+      }
+    });
+  </script>
+</body>
+
+</html>

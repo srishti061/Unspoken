@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Write a Letter | Unspoken</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter&family=Libre+Baskerville&display=swap" rel="stylesheet">
+
+    <style>
+        /* Your original styles here (unchanged) */
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: #fefefe;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .login-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .unspoken-label {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            font-family: 'Libre Baskerville', serif;
+            font-size: 16px;
+            letter-spacing: 6px;
+            color: #999;
+            opacity: 0.6;
+            transform: rotate(180deg);
+            user-select: none;
+            position: absolute;
+            bottom: 10px;
+            left: -30px;
+        }
+
+        .write-box {
+            background: #fff;
+            border: 1px solid #eee;
+            /* Faint border */
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+            padding: 50px 40px 60px;
+            /* ⬅️ Equal left & right padding */
+            max-width: 500px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .write-box h2 {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 22px;
+            margin-bottom: 10px;
+            color: #444;
+        }
+
+        .write-box p {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 30px;
+        }
+
+        input[type="text"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px 14px;
+            font-size: 16px;
+            font-family: 'Inter', sans-serif;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            background: #fff;
+            box-shadow: 2px 4px 12px rgba(0, 0, 0, 0.04);
+            resize: vertical;
+        }
+
+        textarea {
+            min-height: 200px;
+        }
+
+        button {
+            padding: 12px 24px;
+            background: #444;
+            color: white;
+            border: none;
+            font-size: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: fit-content;
+        }
+
+        button:hover {
+            background: #222;
+        }
+
+        @media (max-width: 600px) {
+  html, body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    background-color: #fff;
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .login-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 60px 20px 20px; /* top padding to make space for UNSPOKEN */
+    gap: 20px;
+    position: relative;
+  }
+
+  .unspoken-label {
+  position: absolute;
+  top: 3px; /* was 20px — reduced to bring it higher */
+  left: 0;
+  right: 0;
+  text-align: center;
+  writing-mode: horizontal-tb;
+  transform: none;
+  font-size: 16px;
+  color: #888;
+  letter-spacing: 4px;
+  opacity: 0.7;
+  z-index: 1;
+  pointer-events: none;
+  background: transparent;
+}
+
+  .write-box {
+    width: 100%;
+    padding: 47px 20px 30px;
+    box-sizing: border-box;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+    z-index: 0;
+  }
+
+  .write-box h2,
+  .write-box p {
+    text-align: center;
+    font-size: 16px;
+  }
+
+  .write-box input,
+  .write-box textarea,
+  .write-box select,
+  .write-box button {
+    width: 100%;
+    font-size: 14px;
+    margin-top: 12px;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+
+  .write-box textarea {
+    min-height: 120px;
+  }
+}
+
+
+    </style>
+</head>
+
+<body>
+    <div class="login-wrapper">
+        <div class="write-box">
+            <h2>For the heart that never spoke.</h2>
+            <p>This space is yours.</p>
+
+            <input type="text" id="toWhom" placeholder="To (optional): e.g. 'Mom', 'Someone I loved', etc.">
+            <textarea id="letterContent" placeholder="Dear ____," required></textarea>
+
+            <select id="visibility">
+                <option value="private">🔒 Keep Private</option>
+                <option value="public">🌍 Make Public</option>
+            </select>
+
+            <button onclick="submitLetter()">Send to the Silence</button>
+
+            <div class="unspoken-label">UNSPOKEN</div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, db } from './firebase.js';
+        import {
+            collection,
+            addDoc,
+            serverTimestamp
+        } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+        import {
+            onAuthStateChanged
+        } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                alert("Please log in to submit a letter.");
+                window.location.href = "login.html";
+            }
+
+            window.submitLetter = async function () {
+                const to = document.getElementById('toWhom').value.trim();
+                const content = document.getElementById('letterContent').value.trim();
+                const visibility = document.getElementById('visibility').value;
+
+                if (!content) {
+                    alert("Please write something first.");
+                    return;
+                }
+
+                try {
+                    const letterData = {
+                        to: to || "Someone",
+                        content: content,
+                        public: visibility === "public",
+                        createdAt: serverTimestamp(),
+                        userId: user.uid,
+                        userEmail: user.email
+                    };
+
+                    await addDoc(collection(db, "letters"), letterData);
+
+                    alert(`Letter saved as ${visibility === 'public' ? 'public' : 'private'}!`);
+                    document.getElementById('toWhom').value = '';
+                    document.getElementById('letterContent').value = '';
+                    document.getElementById('visibility').value = 'private';
+
+                } catch (err) {
+                    console.error("Error saving letter:", err.message, err);
+                    alert("Error saving your letter. Please try again.");
+                }
+            };
+        });
+    </script>
+</body>
+
+</html>

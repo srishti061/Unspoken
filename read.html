@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Read Letters | Unspoken</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter&family=Libre+Baskerville&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="login.css">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: #f9f9f9;
+        }
+
+        .read-wrapper {
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 24px;
+            width: 100%;
+        }
+
+        .letter-box-container {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: row;
+            overflow: hidden;
+            width: 320px;
+            min-height: 300px;
+        }
+
+        .vertical-label {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            font-family: 'Libre Baskerville', serif;
+            font-size: 18px;
+            letter-spacing: 6px;
+            color: #999;
+            opacity: 0.6;
+            transform: rotate(180deg);
+            user-select: none;
+            background-color: #fff;
+            padding: 20px 10px;
+            border-right: 2px solid #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .letter-content-section {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .letter-content-section h3 {
+            margin-top: 0;
+            font-family: 'Libre Baskerville', serif;
+            font-size: 20px;
+            color: #444;
+        }
+
+        .letter-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            overflow-y: auto;
+        }
+
+        .letter-box {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 12px;
+            background: #fafafa;
+        }
+
+        .letter-box h4 {
+            margin: 0 0 6px;
+            font-size: 16px;
+            color: #222;
+        }
+
+        .letter-box p,
+        .letter-box small {
+            display: none;
+        }
+
+        .delete-btn {
+            margin-top: 8px;
+            background: #ddd;
+            color: #333;
+            border: none;
+            border-radius: 5px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s ease;
+        }
+
+        .delete-btn:hover {
+            background: #ccc;
+        }
+
+        @media (max-width: 768px) {
+            .row {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .letter-box-container {
+                flex-direction: column;
+                width: 100%;
+                max-width: 360px;
+            }
+
+            .vertical-label {
+                writing-mode: horizontal-tb;
+                transform: none;
+                text-align: center;
+                font-size: 14px;
+                border-right: none;
+                border-bottom: 1px solid #eee;
+                padding: 10px;
+                margin-bottom: 10px;
+            }
+
+            .letter-content-section {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="read-wrapper">
+        <div class="row">
+            <div class="letter-box-container">
+                <div class="vertical-label">UNSPOKEN</div>
+                <div class="letter-content-section">
+                    <h3>Your Public Letters</h3>
+                    <div id="yourLetters" class="letter-grid"></div>
+                </div>
+            </div>
+
+            <div class="letter-box-container">
+                <div class="vertical-label">UNSPOKEN</div>
+                <div class="letter-content-section">
+                    <h3>Your Private Letters</h3>
+                    <div id="yourPrivateLetters" class="letter-grid"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="othersSection" class="row"></div>
+    </div>
+
+    <script type="module">
+        import { auth, db } from './firebase.js';
+        import {
+            collection,
+            query,
+            where,
+            getDocs,
+            deleteDoc,
+            doc
+        } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+        import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+
+        const yourContainer = document.getElementById("yourLetters");
+        const privateContainer = document.getElementById("yourPrivateLetters");
+        const othersSection = document.getElementById("othersSection");
+
+        async function renderLetters(snapshot, container) {
+            container.innerHTML = '';
+            if (snapshot.empty) {
+                container.innerHTML = '<p style="color:#888">No letters to show yet.</p>';
+                return;
+            }
+
+            snapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                if (!data.content) return;
+
+                const box = document.createElement("div");
+                box.className = "letter-box";
+                box.innerHTML = `
+                    <h4><a href="letter.html?id=${docSnap.id}" style="text-decoration:none;color:inherit;">To: ${data.to || "Someone"}</a></h4>
+                    <button class="delete-btn" data-id="${docSnap.id}">🗑️ Delete</button>
+                `;
+                container.appendChild(box);
+            });
+
+            const deleteButtons = container.querySelectorAll('.delete-btn');
+            deleteButtons.forEach((btn) => {
+                btn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    const id = btn.getAttribute('data-id');
+                    const confirmDelete = confirm("Are you sure you want to delete this letter?");
+                    if (!confirmDelete) return;
+                    try {
+                        await deleteDoc(doc(db, "letters", id));
+                        btn.parentElement.remove();
+                    } catch (err) {
+                        alert("Failed to delete letter.");
+                        console.error(err);
+                    }
+                });
+            });
+        }
+
+        async function fetchLetters() {
+            try {
+                onAuthStateChanged(auth, async (user) => {
+                    if (!user) return;
+
+                    const yourQuery = query(
+                        collection(db, "letters"),
+                        where("public", "==", true),
+                        where("userId", "==", user.uid)
+                    );
+                    const yourSnap = await getDocs(yourQuery);
+                    renderLetters(yourSnap, yourContainer);
+
+                    const privateQuery = query(
+                        collection(db, "letters"),
+                        where("public", "==", false),
+                        where("userId", "==", user.uid)
+                    );
+                    const privateSnap = await getDocs(privateQuery);
+                    renderLetters(privateSnap, privateContainer);
+
+                    const othersQuery = query(
+                        collection(db, "letters"),
+                        where("public", "==", true),
+                        where("userId", "!=", user.uid)
+                    );
+                    const othersSnap = await getDocs(othersQuery);
+
+                    const grouped = {};
+                    othersSnap.forEach(doc => {
+                        const data = doc.data();
+                        if (!grouped[data.userEmail]) grouped[data.userEmail] = [];
+                        grouped[data.userEmail].push({ ...data, id: doc.id });
+                    });
+
+                    othersSection.innerHTML = '';
+                    for (let writer in grouped) {
+                        const section = document.createElement('div');
+                        section.className = 'letter-box-container';
+                        section.innerHTML = `
+                            <div class="vertical-label">UNSPOKEN</div>
+                            <div class="letter-content-section">
+                                <h3>${writer}</h3>
+                                <div class="letter-grid"></div>
+                            </div>
+                        `;
+                        const grid = section.querySelector('.letter-grid');
+                        grouped[writer].forEach((data) => {
+                            const box = document.createElement("div");
+                            box.className = "letter-box";
+                            box.innerHTML = `<h4><a href="letter.html?id=${data.id}" style="text-decoration:none;color:inherit;">To: ${data.to || "Someone"}</a></h4>`;
+                            grid.appendChild(box);
+                        });
+                        othersSection.appendChild(section);
+                    }
+                });
+            } catch (err) {
+                console.error("Error fetching letters:", err);
+                othersSection.innerHTML = '<p>Error loading letters. Check console.</p>';
+            }
+        }
+
+        fetchLetters();
+    </script>
+</body>
+
+</html>

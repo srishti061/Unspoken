@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Profile | Unspoken</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter&family=Libre+Baskerville&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="login.css" />
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: #fefefe;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .profile-wrapper {
+            display: flex;
+            align-items: flex-start;
+            padding: 40px 15px 30px;
+            gap: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            min-height: auto;
+        }
+
+        .unspoken-label {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            font-family: 'Libre Baskerville', serif;
+            font-size: 16px;
+            letter-spacing: 6px;
+            color: #999;
+            opacity: 0.6;
+            transform: rotate(180deg);
+            user-select: none;
+            padding: 15px 10px;
+            cursor: pointer;
+            background: #fff;
+            border-right: 1px solid #eee;
+
+            position: absolute;
+            bottom: 15px;
+            left: -25px;
+            height: auto;
+        }
+
+        .profile-container {
+            background: #fafafa;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            padding: 25px 30px 30px;
+            flex: 1;
+            max-width: 850px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            min-height: 320px;
+        }
+
+        h2 {
+            font-family: 'Libre Baskerville', serif;
+            margin-bottom: 10px;
+            font-weight: 700;
+            font-size: 24px;
+            color: #444;
+        }
+
+        .logout-btn {
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            background: #999999;
+            color: white;
+            padding: 8px 20px;
+            font-weight: 600;
+            font-size: 13px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(153, 153, 153, 0.4);
+            transition: background-color 0.3s ease;
+            user-select: none;
+            z-index: 20;
+        }
+
+        .logout-btn:hover {
+            background: #777777;
+        }
+
+        .profile-pic {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #ddd;
+            display: block;
+            margin-bottom: 12px;
+            align-self: center;
+        }
+
+        #picUpload {
+            margin-bottom: 12px;
+            align-self: center;
+            font-size: 14px;
+        }
+
+        .delete-btn {
+            margin-bottom: 20px;
+            align-self: center;
+            font-size: 14px;
+            padding: 8px 16px;
+        }
+
+        #userEmail {
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 25px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .info-sections {
+            display: flex;
+            justify-content: space-between;
+            gap: 25px;
+            flex-wrap: nowrap;
+            flex-grow: 1;
+            min-height: 180px;
+        }
+
+        .section {
+            background: #f0f0f0;
+            border-radius: 10px;
+            padding: 15px 20px;
+            flex: 1;
+            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+            overflow-y: auto;
+            max-height: 220px;
+            font-size: 13px;
+            color: #444;
+        }
+
+        .section h3 {
+            margin-top: 0;
+            font-family: 'Libre Baskerville', serif;
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #444;
+        }
+
+        .letter-list div {
+            border: 1px solid #ddd;
+            margin: 6px 0;
+            padding: 8px;
+            border-radius: 6px;
+            background: #fff;
+            font-size: 13px;
+            color: #333;
+        }
+
+        .letter-list a {
+            color: #333;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .letter-list a:hover {
+            text-decoration: underline;
+        }
+
+        button.edit-btn,
+        button.delete-btn,
+        button.download-btn {
+            margin-top: 6px;
+            padding: 5px 10px;
+            background: #e1e1e1;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-right: 6px;
+            transition: background-color 0.2s ease;
+            color: #555;
+        }
+
+        button.edit-btn:hover,
+        button.delete-btn:hover,
+        button.download-btn:hover {
+            background: #ccc;
+        }
+
+        .notes-area {
+            width: 100%;
+            height: 110px;
+            margin-top: 6px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            resize: vertical;
+            color: #333;
+            background: white;
+        }
+
+        .delete-account-btn {
+            margin-top: 25px;
+            background: #999999;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 700;
+            align-self: center;
+            max-width: 250px;
+            transition: background-color 0.3s ease;
+        }
+
+        .delete-account-btn:hover {
+            background: #777777;
+        }
+
+        @media (max-width: 600px) {
+
+            html,
+            body {
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                background-color: #fff;
+                /* pure white background */
+                overflow-x: hidden;
+            }
+
+            .profile-wrapper {
+                flex-direction: column;
+                padding: 20px 12px;
+                background-color: #fff;
+                min-height: 100vh;
+                box-sizing: border-box;
+                position: relative;
+            }
+
+
+
+            .unspoken-label {
+                writing-mode: horizontal-tb;
+                transform: none;
+                text-align: center;
+                font-size: 14px;
+                letter-spacing: 6px;
+                margin: 30px auto 16px auto;
+                border-bottom: 1px solid #eee;
+                padding-bottom: 6px;
+                background-color: #fff;
+                position: relative;
+                z-index: 2;
+                margin-right: 80px;
+            }
+
+
+            .logout-btn {
+                position: static;
+                display: block;
+                margin: 0 0 20px auto;
+                width: fit-content;
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+
+            .profile-pic {
+                width: 90px;
+                height: 90px;
+            }
+
+            #picUpload {
+                margin-bottom: 12px;
+            }
+
+            .delete-btn {
+                margin-bottom: 20px;
+            }
+
+            button,
+            .edit-btn,
+            .download-btn,
+            .delete-btn,
+            .delete-account-btn {
+                width: 100%;
+                margin-bottom: 12px;
+            }
+
+            .delete-account-btn {
+                background-color: #ccc;
+                /* light grey background */
+                color: #333;
+                padding: 12px;
+                font-size: 14px;
+                border-radius: 8px;
+                font-weight: bold;
+                text-align: center;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                border: none;
+            }
+
+            .notes-area {
+                height: 140px;
+            }
+
+            .info-sections {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+                width: 100%;
+            }
+
+            .section {
+                width: 100%;
+                box-sizing: border-box;
+                padding: 16px;
+                background-color: #fafafa;
+                border-radius: 8px;
+                box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+            }
+
+            .letter-status-container,
+            .letter-status-box {
+                all: unset;
+            }
+        }
+    </style>
+</head>
+
+<body>
+  <div class="profile-wrapper">
+    <div class="unspoken-label" onclick="location.href='home.html'">UNSPOKEN</div>
+    <div class="profile-container">
+      <button class="logout-btn" onclick="location.href='logout.html'">Logout</button>
+      <h2>Your Profile</h2>
+      <img src="default-pic.jpg" alt="Profile Picture" class="profile-pic" id="profilePic" onerror="this.onerror=null; this.src='default-pic.jpg';" />
+      <input type="file" id="picUpload" accept="image/*" onchange="previewAndUpload()" />
+      <button class="delete-btn" onclick="deleteProfilePic()">🗑️ Remove Picture</button>
+      <p id="userEmail"></p>
+
+      <div class="info-sections">
+        <div class="section">
+          <h3>Letter Stats</h3>
+          <p>Total: <span id="totalCount">0</span></p>
+          <p>Public: <span id="publicCount">0</span></p>
+          <p>Private: <span id="privateCount">0</span></p>
+        </div>
+        <div class="section">
+          <h3>Last 3 Letters</h3>
+          <div class="letter-list" id="letterList"></div>
+        </div>
+        <div class="section">
+          <h3>Personal Notes</h3>
+          <button class="edit-btn" style="margin-bottom: 15px;" onclick="location.href='notes.html'">📝 Open Notes Page</button>
+          <textarea class="notes-area" id="notesBox" placeholder="Your private thoughts..."></textarea>
+          <button class="edit-btn" onclick="saveNotes()">💾 Save Notes</button>
+          <button class="download-btn" onclick="downloadNotes()">⬇️ Download</button>
+        </div>
+      </div>
+
+      <button class="delete-account-btn" onclick="deleteAccount()">Delete Account</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { auth, db } from './firebase.js';
+    import {
+      collection, query, where, getDocs,
+      doc, deleteDoc, getDoc, setDoc, updateDoc
+    } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+    import {
+      onAuthStateChanged, deleteUser
+    } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+
+    const userEmail = document.getElementById('userEmail');
+    const totalCount = document.getElementById('totalCount');
+    const publicCount = document.getElementById('publicCount');
+    const privateCount = document.getElementById('privateCount');
+    const letterList = document.getElementById('letterList');
+    const notesBox = document.getElementById('notesBox');
+    const profilePic = document.getElementById('profilePic');
+    let currentUser;
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) return location.href = 'login.html';
+      currentUser = user;
+      userEmail.textContent = `Logged in as: ${user.email}`;
+      await fetchLetters(user.uid);
+      await fetchNotes(user.uid);
+      await loadProfilePic(user.uid);
+    });
+
+    async function loadProfilePic(uid) {
+      const userRef = await getDoc(doc(db, 'users', uid));
+      if (userRef.exists() && userRef.data().photoBase64) {
+        profilePic.src = userRef.data().photoBase64;
+      } else {
+        profilePic.src = 'default-pic.jpg';
+      }
+    }
+
+    window.previewAndUpload = async function () {
+      const file = document.getElementById('picUpload').files[0];
+      if (!file || !currentUser) return;
+
+      const reader = new FileReader();
+      reader.onload = async () => {
+        profilePic.src = reader.result;
+        try {
+          await setDoc(doc(db, 'users', currentUser.uid), { photoBase64: reader.result }, { merge: true });
+          alert("Profile picture updated!");
+        } catch (err) {
+          console.error("Base64 upload failed:", err);
+          alert("Failed to save profile picture.");
+        }
+      };
+      reader.readAsDataURL(file);
+    };
+
+    window.deleteProfilePic = async function () {
+      if (!currentUser) return;
+      try {
+        await updateDoc(doc(db, 'users', currentUser.uid), { photoBase64: '' });
+        profilePic.src = 'default-pic.jpg';
+        alert("Profile picture removed.");
+      } catch (err) {
+        console.error("Error deleting base64 image:", err);
+        alert("Could not delete profile picture.");
+      }
+    };
+
+    async function fetchLetters(uid) {
+      const q = query(collection(db, 'letters'), where('userId', '==', uid));
+      const snap = await getDocs(q);
+      let all = [], pub = 0, priv = 0;
+      snap.forEach(doc => {
+        const d = doc.data();
+        all.push({ id: doc.id, ...d });
+        d.public ? pub++ : priv++;
+      });
+      totalCount.textContent = all.length;
+      publicCount.textContent = pub;
+      privateCount.textContent = priv;
+      letterList.innerHTML = '';
+      all.slice(0, 3).forEach(letter => {
+        const div = document.createElement('div');
+        div.innerHTML = `
+          <a href="letter.html?id=${letter.id}">To: ${letter.to || 'Someone'}</a><br>
+          <button class="edit-btn" onclick="location.href='write.html?id=${letter.id}'">✏️ Edit</button>
+        `;
+        letterList.appendChild(div);
+      });
+    }
+
+    window.fetchNotes = async function (uid) {
+      try {
+        const docRef = doc(db, 'notes', uid);
+        const docSnap = await getDoc(docRef);
+        notesBox.value = docSnap.exists() ? docSnap.data().content || '' : '';
+      } catch (err) {
+        console.error("Error fetching notes:", err);
+      }
+    };
+
+    window.saveNotes = async function () {
+      if (!currentUser) return;
+      try {
+        await setDoc(doc(db, 'notes', currentUser.uid), { content: notesBox.value });
+        alert('Notes saved.');
+      } catch (err) {
+        console.error("Error saving notes:", err);
+        alert("Failed to save notes.");
+      }
+    };
+
+    window.downloadNotes = function () {
+      const blob = new Blob([notesBox.value], { type: 'text/plain' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'notes.txt';
+      a.click();
+    };
+
+    window.deleteAccount = async function () {
+      const sure = confirm("This will delete your account and all letters. Proceed?");
+      if (!sure || !currentUser) return;
+      const q = query(collection(db, 'letters'), where('userId', '==', currentUser.uid));
+      const snap = await getDocs(q);
+      for (let docu of snap.docs) await deleteDoc(doc(db, 'letters', docu.id));
+      await deleteDoc(doc(db, 'notes', currentUser.uid));
+      await deleteDoc(doc(db, 'users', currentUser.uid));
+      await deleteUser(currentUser);
+      alert("Account deleted.");
+      location.href = 'login.html';
+    };
+  </script>
+</body>
+
+
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Letters Unsent</title>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville&family=Inter&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="envelope" onclick="openEnvelope()">
+      <div class="flap"></div>
+
+      <!-- Letter with vertical label -->
+      <div class="paper-wrapper">
+        <div class="left-label">Unspoken</div>
+        <div class="paper">A letter never sent...<br />Click to open</div>
+      </div>
+
+      <div class="base"></div>
+    </div>
+
+    <div class="fade-screen" id="fadeScreen">
+      <div class="fade-text">
+        Some letters were never meant to be sent...
+        <br /><button onclick="goToLogin()">Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openEnvelope() {
+      const envelope = document.querySelector('.envelope');
+      envelope.classList.add('opened');
+      setTimeout(() => {
+        document.getElementById('fadeScreen').style.opacity = 1;
+        document.getElementById('fadeScreen').style.pointerEvents = "auto";
+      }, 1500);
+    }
+
+    function goToLogin() {
+      window.location.href = "login.html";
+    }
+  </script>
+</body>
+</html>

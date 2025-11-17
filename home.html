@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home | Letters Unsent</title>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+
+    <!-- Firebase Config -->
+    <script src="firebase.js"></script>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter&family=Libre+Baskerville&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            margin: 0;
+            background-color: #f4f4f4;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 0 20px;
+        }
+
+        .home-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            max-width: 800px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .unspoken-label {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            font-family: 'Libre Baskerville', serif;
+            font-size: 18px;
+            letter-spacing: 6px;
+            color: #999;
+            opacity: 0.6;
+            transform: rotate(180deg);
+            user-select: none;
+            position: absolute;
+            top: 420px;
+            /* move down */
+            left: 530px;
+        }
+
+        .form-box {
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            flex: 1;
+            max-width: 400px;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .form-box h2 {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .form-box .btn {
+            width: 100%;
+            padding: 12px;
+            margin-top: 12px;
+            font-size: 15px;
+            background-color: #444;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .form-box .btn:hover {
+            background-color: #222;
+        }
+
+        .logout {
+            margin-top: 20px;
+            font-size: 13px;
+            color: #888;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .logout:hover {
+            color: #333;
+        }
+
+        /* Loader */
+        .loader-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #fefefe;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.3s ease;
+        }
+
+        .loader-content {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 36px;
+            letter-spacing: 6px;
+            color: #555;
+            animation: fadeinout 1.5s ease-in-out infinite;
+        }
+
+        @keyframes fadeinout {
+
+            0%,
+            100% {
+                opacity: 0.3;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        #loader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            body {
+                padding: 20px;
+                margin: 0;
+            }
+
+            .home-wrapper {
+                flex-direction: column;
+                align-items: center;
+                justify-content: flex-start;
+                gap: 20px;
+                height: auto;
+            }
+
+            .unspoken-label {
+                position: static;
+                writing-mode: horizontal-tb;
+                transform: none;
+                text-align: center;
+                font-size: 14px;
+                border-bottom: 1px solid #eee;
+                padding: 10px 0;
+                margin-bottom: 10px;
+                letter-spacing: 4px;
+                width: 100%;
+                opacity: 0.7;
+            }
+
+            .form-box {
+                width: 100%;
+                max-width: 340px;
+                padding: 20px;
+                box-sizing: border-box;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+                border-radius: 10px;
+                background-color: white;
+            }
+
+            .form-box h2 {
+                font-size: 18px;
+                text-align: center;
+            }
+
+            .form-box .btn {
+                width: 100%;
+                font-size: 14px;
+                padding: 10px;
+                margin-top: 12px;
+            }
+
+            .logout {
+                margin-top: 16px;
+                font-size: 13px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Loader -->
+    <div id="loader" class="loader-overlay hidden">
+        <div class="loader-content">Unspoken</div>
+    </div>
+
+    <div class="home-wrapper">
+        <div class="unspoken-label">UNSPOKEN</div>
+
+        <div class="form-box">
+            <h2>Let your unsent words find their place here.</h2>
+            <button class="btn" onclick="location.href='write.html'">Write a Letter</button>
+            <button class="btn" onclick="location.href='read.html'">Read Letters</button>
+            <button class="btn" onclick="location.href='profile.html'">Your Profile</button>
+            <div class="logout" onclick="window.location.href='logout.html'">Logout</div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase Auth Check
+        firebase.auth().onAuthStateChanged((user) => {
+            if (!user) {
+                window.location.href = "login.html";
+            }
+        });
+
+        // Show loader on any navigation (optional)
+        const buttons = document.querySelectorAll('.btn, .logout');
+        const loader = document.getElementById('loader');
+
+        buttons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                loader.classList.remove('hidden');
+            });
+        });
+    </script>
+</body>
+
+</html>
